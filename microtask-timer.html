@@ -1,0 +1,69 @@
+﻿<link rel="import" href="../polymer/polymer.html">
+
+<polymer-element name="microtask-timer" attributes="population cutoff">
+
+  <script>
+
+    Polymer('microtask-timer', {
+      population: 5,
+      cutOff: .5,
+      ready: function() {
+        this.durations = [];
+        this.div = document.createElement('div');
+        var self = this;
+        this.observer = new MutationObserver(function() {
+          self.checkDone();
+        });
+        this.observer.observe(this.div, { attributes: true });
+      },
+      now: typeof performance == 'function' ? performance.now : function() {
+        return (new Date()).getTime();
+      },
+      start: function(callback, target) {
+        this.callback = callback;
+        this.target = target;
+        this.durations.length = 0;
+        this.measureNext();
+      },
+      measureNext: function() {
+        this.div.setAttribute('test', '');
+        this.lastTime = this.now();
+      },
+      checkDone: function() {
+        var endTime = this.now();
+        this.durations.push(endTime - this.lastTime);
+        if (this.durations.length < this.population + 1)
+          return this.measureNext();
+
+        var durations = this.durations;
+        var length = durations.length
+
+        var sum = 0;
+        for (var i = length - this.population; i < length; i++) {
+          sum += durations[i];
+        }
+
+        var mean = sum / this.population;
+        var sumOfSquareDifferences = 0;
+        for (var i = length - this.population; i < length; i++) {
+          var difference = durations[i] - mean;
+          sumOfSquareDifferences += difference * difference;
+        }
+
+        var std = Math.sqrt(sumOfSquareDifferences / this.population);
+
+        if (std > 0 && mean > 0 && std / mean > this.cutOff)
+          return this.measureNext();
+
+        var totalTime = 0;
+        for (var i = 0; i < durations.length - this.population; i++) {
+          totalTime += this.durations[i];
+        }
+
+        this.callback.call(this.target, totalTime);
+      }
+    });
+
+  </script>
+
+</polymer-element>

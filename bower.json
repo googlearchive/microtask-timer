@@ -1,0 +1,16 @@
+{
+  "name": "microtask-timer",
+  "version": "0.0.0",
+  "authors": [
+    "Rafael Weinstein <rafaelw@google.com>"
+  ],
+  "description": "Utility which can wait until microtask work 'settles down'",
+  "keywords": [
+    "Polymer",
+    "Microtask"
+  ],
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer",
+  }
+}
